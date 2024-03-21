@@ -14,8 +14,10 @@
 - kubectl
 - helm
 - k9s
-- podman
+- docker
 - kind
 - cilium, hubble cli
 - nvm
 - sdkman
+- nix shell
+- 
