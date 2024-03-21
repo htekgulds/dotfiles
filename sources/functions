@@ -1,0 +1,36 @@
+curlj() {
+  curl $@ | pp_json
+}
+
+b64() {
+  echo "$1" | base64
+}
+
+b64d() {
+  echo "$1" | base64 -d
+}
+
+dpv() {
+  context=$1
+  shift 1
+  kubectl directpv --kubeconfig=$HOME/.kube/$context.yaml $@
+}
+
+miniologin() {
+  namespace=${1:=minio-operator}
+  serviceaccount=${2:=console-sa}
+  secret=$(kubectl -n $namespace get serviceaccount $serviceaccount -o jsonpath="{.secrets[0].name}")
+  token=$(kubectl -n $namespace get secret $secret -o jsonpath="{.data.token}")
+  echo "$(echo "$token" | base64 --decode)" # tek echo olursa sonda % işareti çıkıyor
+}
+
+konfig() {
+  env=$1
+  export KUBECONFIG=$HOME/.kube/$env.yaml
+  kubectl config use-context $env
+}
+
+cyssh() {
+  url=$1
+  ssh hasan.tekgul@$url@10.1.6.50
+}
