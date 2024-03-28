@@ -34,3 +34,20 @@ cyssh() {
   url=$1
   ssh hasan.tekgul@$url@10.1.6.50
 }
+
+kdeletens() {
+  NAMESPACE=$1
+  is_terminating=$(kubectl get ns $NAMESPACE | grep -i terminating)
+
+  # if result is not empty
+  if [ ! -z "$is_terminating" ]; then
+    echo "force deleting namespace $NAMESPACE"
+    tmp=$(mktemp)
+    kubectl get ns $NAMESPACE -o json | jq '.spec.finalizers = []' >$tmp
+    token=$(kubectl create token kube-admin -n kube-system)
+    curl -k -H "Content-Type: application/json" -H "Authorization: Bearer $token" -X PUT --data-binary @$tmp https://10.10.27.144:6443/api/v1/namespaces/$NAMESPACE/finalize
+    echo "namespace deleted"
+  else
+    echo "namespace $NAMESPACE is not terminating"
+  fi
+}
